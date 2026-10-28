@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.animation.ObjectAnimator;
 import android.util.Property;
 import android.animation.TypeEvaluator;
+import android.view.animation.LinearInterpolator;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -74,6 +75,8 @@ public class MapMarker extends MapFeature {
     private String identifier;
 
     private LatLng position;
+    // The animation started by animateToCoodinate, so a newer one or a placement can stop it.
+    private ObjectAnimator positionAnimator;
     private String title;
     private String snippet;
 
@@ -203,6 +206,7 @@ public class MapMarker extends MapFeature {
     }
 
     public void setCoordinate(LatLng position) {
+        cancelPositionAnimator();
         this.position = position;
         if (marker != null) {
             marker.setPosition(position);
@@ -364,6 +368,9 @@ public class MapMarker extends MapFeature {
     }
 
     public void animateToCoodinate(LatLng finalPosition, Integer duration) {
+        // One animation at a time: a newer one starts from wherever the last had got to. Linear, as
+        // on iOS, so animations run back to back do not slow to a stop at every coordinate.
+        cancelPositionAnimator();
         TypeEvaluator<LatLng> typeEvaluator = new TypeEvaluator<LatLng>() {
             @Override
             public LatLng evaluate(float fraction, LatLng startValue, LatLng endValue) {
@@ -377,7 +384,16 @@ public class MapMarker extends MapFeature {
                 typeEvaluator,
                 finalPosition);
         animator.setDuration(duration);
+        animator.setInterpolator(new LinearInterpolator());
+        positionAnimator = animator;
         animator.start();
+    }
+
+    private void cancelPositionAnimator() {
+        if (positionAnimator != null) {
+            positionAnimator.cancel();
+            positionAnimator = null;
+        }
     }
 
     public void setImage(String uri) {
@@ -569,6 +585,7 @@ public class MapMarker extends MapFeature {
 
     @Override
     public void removeFromMap(Object collection) {
+        cancelPositionAnimator();
         if (marker == null) {
             return;
         }

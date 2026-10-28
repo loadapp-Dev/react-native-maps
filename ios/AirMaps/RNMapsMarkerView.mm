@@ -43,6 +43,7 @@ using namespace facebook::react;
 - (void) prepareForRecycle
 {
     [super prepareForRecycle];
+    [_view stopCoordinateAnimation];
     [_view removeFromSuperview];
     _view = nil;
     _legacyMapManager = nil;
@@ -90,6 +91,7 @@ using namespace facebook::react;
 
 - (void) setCoordinates:(double)latitude longitude:(double)longitude
 {
+    [_view stopCoordinateAnimation];
     [_view setCoordinate:CLLocationCoordinate2DMake(latitude, longitude)];
 }
 
@@ -375,6 +377,7 @@ _view.name = CGPointMake(newViewProps.name.x, newViewProps.name.y); \
         CLLocationCoordinate2D coordinates = CLLocationCoordinate2DMake(
                                                                         newViewProps.coordinate.latitude,
                                                                         newViewProps.coordinate.longitude);
+        [_view stopCoordinateAnimation];
         _view.coordinate = coordinates;
     }
 

@@ -56,6 +56,8 @@
 - (void)addTapGestureRecognizer;
 - (void)setUseLegacyPinView:(BOOL)value;
 - (void)animateToCoordinate:(CLLocationCoordinate2D)newCoordinate duration:(NSTimeInterval)duration;
+// Stops an animation in flight where it is, so a placement is not overridden by it.
+- (void)stopCoordinateAnimation;
 
 @end
 

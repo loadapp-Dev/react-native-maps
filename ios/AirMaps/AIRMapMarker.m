@@ -437,10 +437,9 @@ NSInteger const AIR_CALLOUT_OPEN_ZINDEX_BASELINE = 999;
 }
 
 - (void)animateToCoordinate:(CLLocationCoordinate2D)newCoordinate duration:(NSTimeInterval)duration {
-    if (_isAnimating) {
-        NSLog(@"Animation already in progress. Rejecting new animation request.");
-        return;
-    }
+    // A newer animation replaces the one in flight, starting from wherever that one had got to,
+    // instead of being refused.
+    [self stopCoordinateAnimation];
 
     // Mark as animating
     _isAnimating = YES;
@@ -477,6 +476,12 @@ NSInteger const AIR_CALLOUT_OPEN_ZINDEX_BASELINE = 999;
         _displayLink = nil;
         _isAnimating = NO; // Reset the animation state
     }
+}
+
+- (void)stopCoordinateAnimation {
+    [_displayLink invalidate];
+    _displayLink = nil;
+    _isAnimating = NO;
 }
 
 @end
